@@ -10,7 +10,7 @@ from langchain_chroma import Chroma
 from langchain_ollama import OllamaEmbeddings
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import AIMessage, HumanMessage
-
+from extractentity import extract_entity
 #load environment variables
 load_dotenv()  
 
@@ -67,37 +67,39 @@ if user_question:
         st.markdown(user_question)
 
     st.session_state.messages.append(HumanMessage(user_question))
-    planet = None
+    #planet = None
     
-    for p in NASA_URLS:
-        if p in user_question.lower():
-          planet = p
-          break
-    if planet:
-        url = find_nasa_page(planet)
-        print("NASA Search URL:", url)
-        if url:
-            raw_text = scrape_nasa_page(url)
-        else:
-            raw_text = scrape_nasa_page(NASA_URLS[planet] )
+    #for p in NASA_URLS:
+        #if p in user_question.lower():
+        #  planet = p
+         # break
+   #if planet:
+      #  url = find_nasa_page(planet)
+     #   print("NASA Search URL:", url)
+      #  if url:
+      #      raw_text = scrape_nasa_page(url)
+      #  else:
+      #      raw_text = scrape_nasa_page(NASA_URLS[planet] )
+    entity = extract_entity(user_question, llm)
+    print("Extracted Entity:", entity)
+    url = find_nasa_page(entity)
+    print("NASA Search URL:", url)
     with open("known_worlds.txt", "r") as f:
       known_worlds = [
          line.strip().lower()
          for line in f
        ]
-    if planet and planet not in known_worlds:
+    if entity.lower() not in known_worlds:
      print("Planet not found in archive")
-     print("Scraping:", planet)
-     raw_text = scrape_nasa_page(
-        NASA_URLS[planet]
-     )
+     print("Scraping:", entity)
+     raw_text = scrape_nasa_page(url)
      if raw_text:
         print("Characters:", len(raw_text))
         print(raw_text[:500])
-        ingest_text(raw_text,NASA_URLS[planet],planet.title())
+        ingest_text(raw_text,url,entity)
         with open("known_worlds.txt","a") as f:
-            f.write("\n" + planet)
-            print("Added", planet, "to archive")
+            f.write("\n" + entity.lower())
+            print("Added", entity, "to archive")
     docs = vector_store.similarity_search(user_question, k=6)
     print("\n" + "="*70)
     for i, doc in enumerate(docs, 1):
@@ -141,7 +143,16 @@ If information is missing, respond:
 
 Context:
 {context}
+Task:
+Using ONLY the information above:
 
+- Do not infer numbers.
+- Do not rewrite measurements.
+- Do not convert units unless explicitly provided.
+- Quote scientific facts exactly.
+- If a value is not explicitly stated, say it is unavailable.
+
+Return a concise report.
 Question:
 {user_question}
 
