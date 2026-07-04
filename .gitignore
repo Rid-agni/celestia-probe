@@ -1,0 +1,27 @@
+# Virtual environment
+venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Chroma database
+chroma_db/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Temporary files
+scraped_article.txt
+
+# Python cache
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
