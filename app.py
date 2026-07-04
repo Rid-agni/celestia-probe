@@ -80,26 +80,22 @@ if user_question:
       #      raw_text = scrape_nasa_page(url)
       #  else:
       #      raw_text = scrape_nasa_page(NASA_URLS[planet] )
-    entity = extract_entity(user_question, llm)
+    entity = extract_entity(user_question, llm).strip().title()
     print("Extracted Entity:", entity)
     url = find_nasa_page(entity)
     print("NASA Search URL:", url)
-    with open("known_worlds.txt", "r") as f:
-      known_worlds = [
-         line.strip().lower()
-         for line in f
-       ]
-    if entity.lower() not in known_worlds:
-     print("Planet not found in archive")
-     print("Scraping:", entity)
-     raw_text = scrape_nasa_page(url)
-     if raw_text:
-        print("Characters:", len(raw_text))
-        print(raw_text[:500])
-        ingest_text(raw_text,url,entity)
-        with open("known_worlds.txt","a") as f:
-            f.write("\n" + entity.lower())
+    existing = vector_store.get(where={"title": entity})
+    if len(existing["ids"]) == 0:
+        print("Planet not found in archive")
+        print("Scraping:", entity)
+        raw_text = scrape_nasa_page(url)
+        if raw_text:
+            print("Characters:", len(raw_text))
+            print(raw_text[:500])
+            ingest_text(raw_text, url, entity)
             print("Added", entity, "to archive")
+    else:
+        print(f"{entity} already exists in archive.")
     docs = vector_store.similarity_search(user_question, k=6)
     print("\n" + "="*70)
     for i, doc in enumerate(docs, 1):
