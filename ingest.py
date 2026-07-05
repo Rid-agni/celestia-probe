@@ -25,13 +25,13 @@ text_splitter = RecursiveCharacterTextSplitter(
 )
 
 
-def ingest_text(raw_text, url, title, source):
+def ingest_text(raw_text, url, entity, source):
 
     texts = text_splitter.create_documents(
         [raw_text],
         metadatas=[
             {
-                "title": title,
+                "entity": entity,
                 "url": url,
                 "source": source
             }

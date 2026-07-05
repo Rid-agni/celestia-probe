@@ -13,6 +13,10 @@ from langchain.chat_models import init_chat_model
 from langchain_core.messages import AIMessage, HumanMessage
 from extractentity import extract_entity
 from scraper import scrape_wikipedia_page
+from planner import planner_agent
+from agents.planner import planner_node
+from graph import graph
+from config import llm
 #load environment variables
 load_dotenv()  
 
@@ -31,11 +35,7 @@ vector_store = Chroma(
 )
 
 
-llm = init_chat_model(
-    os.getenv("CHAT_MODEL"),
-    model_provider=os.getenv("MODEL_PROVIDER"),
-    temperature=0
-)
+
 #NASA_URLS = {
 #  "mercury": "https://science.nasa.gov/mercury/facts/",
 #  "venus": "https://science.nasa.gov/venus/facts/",
@@ -85,9 +85,19 @@ if user_question:
       #      raw_text = scrape_nasa_page(url)
       #  else:
       #      raw_text = scrape_nasa_page(NASA_URLS[planet] )
-    entity = extract_entity(user_question, llm).strip().title()
+    state = {"query": user_question}
+
+    state = graph.invoke(state)
+    entity = state["entity"]
+    object_type = state["object_type"]
+    intent = state["intent"]
+    preferred_sources = state["preferred_sources"]
+    print("="*60)
+    print("PLANNER")
+    print(state)
+    print("="*60)
     print("Extracted Entity:", entity)
-    result = find_best_source(entity)
+    result = find_best_source(entity, preferred_sources, object_type)
     if result is None:
         st.error("No trusted source found.")
         st.stop()
@@ -95,19 +105,20 @@ if user_question:
     source = result["source"]
     print("Source:", source)
     print("URL:", url)
-    existing = vector_store.get(where={"title": entity})
+    existing = vector_store.get(where={"entity": entity})
     if len(existing["ids"]) == 0:
-        print("Planet not found in archive")
+        print("Galactic entity not found in archive")
         print("Scraping:", entity)
         raw_text = SCRAPERS[source](url)
-    if (source == "NASA"and (raw_text is None or len(raw_text.split()) < 600) ):
-        print("NASA page too small. Switching to Wikipedia...")
-        wiki = search_wikipedia(entity)
-        if wiki:
-            url = wiki["url"]
-            source = wiki["source"]
-            raw_text = scrape_wikipedia_page(url)
-            print("Wikipedia URL:", url)
+        if (source == "NASA"and (raw_text is None or len(raw_text.split()) < 600) ):
+            
+            print("NASA page too small. Switching to Wikipedia...")
+            wiki = search_wikipedia(entity)
+            if wiki:
+                url = wiki["url"]
+                source = wiki["source"]
+                raw_text = scrape_wikipedia_page(url)
+                print("Wikipedia URL:", url)
         if raw_text:
             print("Characters:", len(raw_text))
             print(raw_text[:500])
@@ -115,7 +126,8 @@ if user_question:
             print("Added", entity, "to archive")
     else:
         print(f"{entity} already exists in archive.")
-    docs = vector_store.similarity_search(user_question, k=6)
+    docs = vector_store.similarity_search(user_question, k=6, filter={
+        "entity": entity})
     if docs:
         source = docs[0].metadata.get("source", "Unknown")
         archive_url = docs[0].metadata.get("url", "")

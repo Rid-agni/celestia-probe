@@ -1,27 +1,22 @@
 from ddgs import DDGS
 
-def find_best_source(entity):
+def find_best_source(entity, preferred_sources, object_type):
+    SEARCH_FUNCTIONS = {
+    "NASA": search_nasa,
+    "Wikipedia": search_wikipedia,
+}
+    for source in preferred_sources:
 
-    searchers = [
-
-        search_nasa,
-
-        search_wikipedia
-    ]
-
-    for search in searchers:
-
-        result = search(entity)
+        result = SEARCH_FUNCTIONS[source](entity, object_type)
 
         if result:
-
             return result
 
     return None
-def search_nasa(entity):
+def search_nasa(entity,object_type):
 
     query = f"site:science.nasa.gov {entity} facts"
-
+    ob=object_type
     with DDGS() as ddgs:
         results = list(ddgs.text(query, max_results=10))
 
@@ -60,9 +55,9 @@ def search_nasa(entity):
     return best_result
 from ddgs import DDGS
 
-def search_wikipedia(entity):
+def search_wikipedia(entity, object_type):
 
-    query = entity
+    query = f"{entity} {object_type}"
 
     with DDGS() as ddgs:
         results = list(ddgs.text(query, max_results=5))
