@@ -1,14 +1,31 @@
 from ddgs import DDGS
 
+def find_best_source(entity):
 
-def find_nasa_page(entity):
+    searchers = [
+
+        search_nasa,
+
+        search_wikipedia
+    ]
+
+    for search in searchers:
+
+        result = search(entity)
+
+        if result:
+
+            return result
+
+    return None
+def search_nasa(entity):
 
     query = f"site:science.nasa.gov {entity} facts"
 
     with DDGS() as ddgs:
         results = list(ddgs.text(query, max_results=10))
 
-    best_url = None
+    best_result = None
     best_score = -1
 
     for r in results:
@@ -16,32 +33,49 @@ def find_nasa_page(entity):
         url = r["href"].lower()
         score = 0
 
-        # Must be NASA Science
         if "science.nasa.gov" not in url:
             continue
 
-        # Prefer fact pages
         if "facts" in url:
             score += 100
 
-        # Prefer the entity name in the URL
         if entity.lower() in url:
             score += 40
 
-        # Avoid blogs
         if "blog" in url:
             score -= 30
 
-        # Avoid mission pages unless necessary
         if "mission" in url:
             score -= 15
 
-        # Avoid images/resources
         if "image" in url or "resource" in url:
             score -= 20
 
         if score > best_score:
             best_score = score
-            best_url = r["href"]
+            best_result = {
+            "url": r["href"],
+            "source": "NASA"
+        }
+    return best_result
+from ddgs import DDGS
 
-    return best_url
+def search_wikipedia(entity):
+
+    query = entity
+
+    with DDGS() as ddgs:
+        results = list(ddgs.text(query, max_results=5))
+
+    for r in results:
+
+        url = r["href"]
+
+        if "wikipedia.org/wiki/" in url:
+
+            return {
+                "url": url,
+                "source": "Wikipedia"
+            }
+
+    return None
