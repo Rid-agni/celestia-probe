@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import TypedDict, List
 
 class ArchiveState(TypedDict):
     query: str
@@ -7,7 +7,9 @@ class ArchiveState(TypedDict):
     object_type: str
     intent: str
 
-    preferred_sources: list
+    preferred_sources: List[str]
+
+    archive_exists: bool
 
     source: str
     url: str

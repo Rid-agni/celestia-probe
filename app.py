@@ -1,22 +1,23 @@
 #import
 import os
 from dotenv import load_dotenv
-from ingest import ingest_text
-from scraper import scrape_nasa_page
+from rag.ingest import ingest_text
+from scrapers.nasa import scrape_nasa_page
 # import streamlit
 import streamlit as st
-from nasasearch import find_best_source 
-from nasasearch import search_wikipedia 
+from search.search import find_best_source 
+from search.search import search_wikipedia 
 from langchain_chroma import Chroma
 from langchain_ollama import OllamaEmbeddings
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import AIMessage, HumanMessage
-from extractentity import extract_entity
-from scraper import scrape_wikipedia_page
+from search.extract_entity import extract_entity
 from planner import planner_agent
 from agents.planner import planner_node
 from graph import graph
+from rag.vectorstore import vector_store
 from config import llm
+from scrapers.wikipedia import scrape_wikipedia_page
 #load environment variables
 load_dotenv()  
 
@@ -24,15 +25,7 @@ SCRAPERS = {
     "NASA": scrape_nasa_page,
     "Wikipedia": scrape_wikipedia_page
 }
-embeddings = OllamaEmbeddings(
-    model=os.getenv("EMBEDDING_MODEL"),
-)
 
-vector_store = Chroma(
-    collection_name=os.getenv("COLLECTION_NAME"),
-    embedding_function=embeddings,
-    persist_directory=os.getenv("DATABASE_LOCATION"), 
-)
 
 
 
@@ -88,6 +81,11 @@ if user_question:
     state = {"query": user_question}
 
     state = graph.invoke(state)
+    archive_exists = state["archive_exists"]
+    if not archive_exists:
+      print("Need to acquire data.")
+    else:
+      print("Archive already has this entity.")
     entity = state["entity"]
     object_type = state["object_type"]
     intent = state["intent"]
@@ -105,27 +103,6 @@ if user_question:
     source = result["source"]
     print("Source:", source)
     print("URL:", url)
-    existing = vector_store.get(where={"entity": entity})
-    if len(existing["ids"]) == 0:
-        print("Galactic entity not found in archive")
-        print("Scraping:", entity)
-        raw_text = SCRAPERS[source](url)
-        if (source == "NASA"and (raw_text is None or len(raw_text.split()) < 600) ):
-            
-            print("NASA page too small. Switching to Wikipedia...")
-            wiki = search_wikipedia(entity)
-            if wiki:
-                url = wiki["url"]
-                source = wiki["source"]
-                raw_text = scrape_wikipedia_page(url)
-                print("Wikipedia URL:", url)
-        if raw_text:
-            print("Characters:", len(raw_text))
-            print(raw_text[:500])
-            ingest_text(raw_text,url,entity,source)
-            print("Added", entity, "to archive")
-    else:
-        print(f"{entity} already exists in archive.")
     docs = vector_store.similarity_search(user_question, k=6, filter={
         "entity": entity})
     if docs:
