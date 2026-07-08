@@ -57,7 +57,7 @@ from ddgs import DDGS
 
 def search_wikipedia(entity, object_type):
 
-    query = f"{entity} {object_type}"
+    query = f"{entity} {object_type} Wikipedia"
 
     with DDGS() as ddgs:
         results = list(ddgs.text(query, max_results=5))

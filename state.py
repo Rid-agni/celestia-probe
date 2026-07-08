@@ -17,5 +17,6 @@ class ArchiveState(TypedDict):
     raw_text: str
 
     docs: list
-
+    context: str
     answer: str
+    archive_url: str
