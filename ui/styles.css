@@ -1,0 +1,185 @@
+:root{
+    --glow: #5EEAD4;
+    --glow-dim: #2DD4C6;
+    --screen-bg: #08100e;
+    --scanline-opacity: 0.18;
+    --noise-opacity: 0.05;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html, body{ margin:0; height:100%; overflow:hidden; }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#000;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .monitor{
+    position:relative;
+    width: min(100vw, calc(100vh * 2070 / 1380));
+    height: min(100vh, calc(100vw * 1380 / 2070));
+  }
+
+  .screen{
+    position:absolute;
+    inset: 4.5% 4.5% 4.5% 4.5%;
+    border-radius: 4% / 7%;
+    overflow:hidden;
+    background: radial-gradient(120% 100% at 50% 40%, #0d1c19 0%, var(--screen-bg) 55%, #030605 100%);
+  }
+
+.crt-content{
+
+    position:absolute;
+    inset:0;
+
+    padding:7% 8%;
+
+    color:var(--glow);
+
+    z-index:2;
+
+    display:flex;
+    flex-direction:column;
+
+    height:100%;
+
+}
+
+  h1.title{
+    font-family:'Rubik 80s Fade', system-ui, sans-serif;
+    font-weight:400;
+    font-size: clamp(24px, 5vw, 48px);
+    letter-spacing: 0.08em;
+    margin: 0 0 0.5em 0;
+    line-height:1;
+    color: var(--glow);
+    text-shadow:
+      0 0 2px var(--glow),
+      0 0 10px var(--glow),
+      0 0 24px var(--glow-dim),
+      0 0 46px var(--glow-dim);
+    transform: skewX(-2deg);
+  }
+
+  .prompt-line{
+    font-size: clamp(12px, 1.8vw, 17px);
+    letter-spacing:0.02em;
+    color: var(--glow);
+    text-shadow: 0 0 2px var(--glow), 0 0 8px var(--glow-dim);
+  }
+
+   .history{
+
+    margin-top:1.2em;
+
+    font-size:clamp(11px,1.6vw,15px);
+
+    line-height:1.7;
+
+    color:var(--glow);
+
+    text-shadow:
+        0 0 2px var(--glow),
+        0 0 6px var(--glow-dim);
+
+    opacity:.92;
+
+    flex:1;
+
+    overflow-y:auto;
+
+    overflow-x:hidden;
+
+    scroll-behavior:smooth;
+     scrollbar-width:none;
+
+}
+  .history div{ opacity:0; animation: line-in .18s ease-out forwards;  white-space: pre-wrap;}
+  .history .echo{ opacity:.55; }
+  .history::-webkit-scrollbar{
+
+    display:none;
+
+}
+
+
+  .cursor{
+    display:inline-block;
+    width:0.55em; height:1em;
+    background: var(--glow);
+    box-shadow: 0 0 6px var(--glow), 0 0 14px var(--glow-dim);
+    vertical-align: -0.15em;
+    animation: blink 1s steps(1) infinite;
+  }
+
+  #cmdInput{ position:absolute; opacity:0; pointer-events:none; }
+
+  @keyframes blink{ 50%{ opacity:0; } }
+  @keyframes line-in{ to{ opacity:1; } }
+
+  /* scanlines */
+  .scanlines{
+    position:absolute; inset:0; z-index:4; pointer-events:none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,var(--scanline-opacity)) 0px,
+      rgba(0,0,0,var(--scanline-opacity)) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  /* rolling brightness sweep */
+  .sweep{
+    position:absolute; left:0; right:0; height:14%;
+    z-index:5; pointer-events:none;
+    background: linear-gradient(to bottom,
+      transparent 0%, rgba(255,255,255,.05) 45%,
+      rgba(255,255,255,.09) 50%, rgba(255,255,255,.05) 55%, transparent 100%);
+    animation: sweep 7s linear infinite;
+    mix-blend-mode: screen;
+  }
+  @keyframes sweep{ 0%{ top:-14%; } 100%{ top:100%; } }
+
+  /* noise via SVG turbulence */
+  .noise{
+    position:absolute; inset:-2px; z-index:6; pointer-events:none;
+    opacity: var(--noise-opacity);
+    mix-blend-mode: overlay;
+    animation: noise-shift 0.4s steps(6) infinite;
+  }
+  @keyframes noise-shift{
+    0%{ transform: translate(0,0); }
+    20%{ transform: translate(-1%,1%); }
+    40%{ transform: translate(1%,-1%); }
+    60%{ transform: translate(-1%,-1%); }
+    80%{ transform: translate(1%,1%); }
+    100%{ transform: translate(0,0); }
+  }
+
+  .vignette{
+    position:absolute; inset:0; z-index:7; pointer-events:none;
+    background: radial-gradient(120% 100% at 50% 45%, transparent 55%, rgba(0,0,0,.55) 100%);
+  }
+
+  .screen{ animation: flicker 6s infinite; }
+  @keyframes flicker{
+    0%, 96%, 100%{ filter: brightness(1); }
+    97%{ filter: brightness(1.04); }
+    98%{ filter: brightness(0.97); }
+  }
+
+  /* ============ YOUR PNG FRAME, ON TOP ============ */
+  /* its screen area is fully transparent (alpha 0), so the glow layer
+     shows through exactly where the real lens cutout is */
+  .frame{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    z-index: 10;
+    pointer-events:none;
+    -webkit-user-drag:none;
+  }
