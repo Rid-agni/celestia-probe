@@ -80,7 +80,7 @@ Example:
     "Wikipedia"
   ]
 }
-
+```
 
 The planning output determines how later nodes process the request.
 
