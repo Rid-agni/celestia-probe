@@ -16,6 +16,8 @@ Instead of treating the vector database as a static knowledge source, the system
 
 The result is a knowledge system that expands its archive as new celestial objects are explored.
 
+![UI GIF](https://drive.google.com/file/d/1JC5YmwJeQa9u6lMNP9uPAxyRws_sucyf/view?usp=sharing)  
+
 ## Key Features
 
 - **Agentic Query Planning**  
@@ -119,6 +121,10 @@ The Response Agent synthesizes the retrieved context into a structured scientifi
 
 The response is grounded in the documents retrieved from the local archive.
 
+![DemoPic](https://drive.google.com/file/d/1GHv9eY4YYT-iK8xyaFpwOn7f4_h4ByFM/view?usp=sharing)
+
+![DemoPic](https://drive.google.com/file/d/1cNAAFk31LdCRjwTvMYLcOKLAd7y2UYbQ/view?usp=sharing)
+
 ## Real-Time Graph Streaming
 
 The FastAPI backend executes the LangGraph workflow using streamed graph events.
@@ -144,6 +150,7 @@ Acquisition Agent ........... ACTIVE
 Retrieval Agent ............. COMPLETE
 Generating Scientific Report
 ```
+![DemoPic](https://drive.google.com/file/d/1J1UNCbPz6BClS18sHsVyjdEyRA-VKVo8/view?usp=sharing)   
 
 These messages correspond to actual LangGraph execution states rather than simulated loading animations.
 
