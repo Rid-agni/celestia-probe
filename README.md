@@ -16,7 +16,7 @@ Instead of treating the vector database as a static knowledge source, the system
 
 The result is a knowledge system that expands its archive as new celestial objects are explored.
 
-![UI GIF](https://drive.google.com/uc?id=1JC5YmwJeQa9u6lMNP9uPAxyRws_sucyf)  
+![UI GIF](https://drive.google.com/uc?id=1U53t0JIU5sqUj2-nUNpWkdmtMlIFyewt)  
 
 ## Key Features
 
