@@ -16,7 +16,7 @@ Instead of treating the vector database as a static knowledge source, the system
 
 The result is a knowledge system that expands its archive as new celestial objects are explored.
 
-![UI GIF](https://drive.google.com/file/d/1JC5YmwJeQa9u6lMNP9uPAxyRws_sucyf/view?usp=sharing)  
+![UI GIF](https://drive.google.com/uc?id=1JC5YmwJeQa9u6lMNP9uPAxyRws_sucyf)  
 
 ## Key Features
 
@@ -121,9 +121,9 @@ The Response Agent synthesizes the retrieved context into a structured scientifi
 
 The response is grounded in the documents retrieved from the local archive.
 
-![DemoPic](https://drive.google.com/file/d/1GHv9eY4YYT-iK8xyaFpwOn7f4_h4ByFM/view?usp=sharing)
+![DemoPic](https://drive.google.com/uc?id=1GHv9eY4YYT-iK8xyaFpwOn7f4_h4ByFM)
 
-![DemoPic](https://drive.google.com/file/d/1cNAAFk31LdCRjwTvMYLcOKLAd7y2UYbQ/view?usp=sharing)
+![DemoPic](https://drive.google.com/uc?id=1cNAAFk31LdCRjwTvMYLcOKLAd7y2UYbQ)
 
 ## Real-Time Graph Streaming
 
@@ -150,7 +150,7 @@ Acquisition Agent ........... ACTIVE
 Retrieval Agent ............. COMPLETE
 Generating Scientific Report
 ```
-![DemoPic](https://drive.google.com/file/d/1J1UNCbPz6BClS18sHsVyjdEyRA-VKVo8/view?usp=sharing)   
+![DemoPic](https://drive.google.com/uc?id=1J1UNCbPz6BClS18sHsVyjdEyRA-VKVo8)   
 
 These messages correspond to actual LangGraph execution states rather than simulated loading animations.
 
